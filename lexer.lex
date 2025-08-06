@@ -83,11 +83,27 @@ import java.io.IOException;
 %type Token
 
 SEMI = ";" // Definan aqui sus Tokens/ER por ejemplo: "el token SEMI"
+PLUS = "\\+"
+MINUS = "-"
+TIMES = "*"
+DIV = "/"
+MOD = "%"
+POW = "\\^"
+LPAREN = "\\("
+RPAREN = "\\)"
 WHITE = (" "|\t|\n)
 
 %%
 
-<YYINITIAL>{SEMI}   { return new Token(Token.SEMI);   }
+<YYINITIAL>{SEMI}   { return new Token(Token.SEMI); }
+<YYINITIAL>{PLUS}   { return new Token(Token.PLUS); }
+<YYINITIAL>{MINUS}  { return new Token(Token.MINUS); }
+<YYINITIAL>{TIMES}  { return new Token(Token.TIMES); }
+<YYINITIAL>{DIV}    { return new Token(Token.DIV); }
+<YYINITIAL>{MOD}    { return new Token(MOD); }
+<YYINITIAL>{POW}    { return new Token(POW); }
+<YYINITIAL>{LPAREN} { return new Token(LPAREN);}
+<YYINITIAL>{RPAREN} { return new Toekn(RPAREN); } 
 
 <YYINITIAL>{WHITE}  { /* NO HACER NADA */             }
 
