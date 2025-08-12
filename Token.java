@@ -2,78 +2,65 @@
     Laboratorio No. 3 - Recursive Descent Parsing
     CC4 - Compiladores
 
-    Clase que sirve para representar un token
-
-    Actualizado: agosto de 2021, Luis Cu
+    Lexer para la gramática de la calculadora
 */
 
-public final class Token {
-    // Tokens (?)
-    public static final int SEMI   = 0;  // ;
-    public static final int PLUS   = 1;  // +
-    public static final int MINUS  = 2;  // -
-    public static final int MULT   = 3;  // *
-    public static final int DIV    = 4;  // /
-    public static final int MOD    = 5;  // %
-    public static final int EXP    = 6;  // ^
-    public static final int LPAREN = 7;  // (
-    public static final int RPAREN = 8;  // )
-    public static final int NUMBER = 9;  // number
-    public static final int ERROR  = 10; // error
-    public static final int UNARY  = 11;  // ~ menos unario
+import java.io.StringReader;
+import java.io.IOException;
 
-    // Esto puede ser bastante util
-    private static final String[] tokens = {
-        ";",
-        "+",
-        "-",
-        "*",
-        "/",
-        "%",
-        "^",
-        "(",
-        ")",
-        "NUMBER",
-        "ERROR",
-        "~"
-    };
+%%
 
-    private int id;
-    private String val;
-
-    // Constructor de la clase
-    public Token(int id, String val) {
-        this.id = id;
-        this.val = val;
-    }
-
-    // Constructor para tokens sin val
-    public Token(int id) {
-        this(id, null);
-    }
-
-    // Para tener el valor de un number
-    public double getVal() {
-        return Double.parseDouble(this.val);
-    }
-
-    // Para tener el id de un token
-    public int getId() {
-        return this.id;
-    }
-
-    // Para comparar, esto es muy util
-    public boolean equals(int id) {
-        return this.id == id;
-    }
-
-    // Para representar un Token en String
-    public String toString() {
-        if(this.id == Token.NUMBER) {
-            if (this.val != null) {
-                return Token.tokens[this.id] + " : " + this.val;
-            }
+%{
+    public static void main(String[] args) throws IOException {
+        String input = "";
+        for (int i = 0; i < args.length; i++) {
+            input += args[i];
         }
-        return Token.tokens[this.id];
+        Lexer lexer = new Lexer(new StringReader(input));
+        Token token;
+        while ((token = lexer.nextToken()) != null) {
+            System.out.println(token);
+        }
     }
-}
+%}
+
+%public
+%class Lexer
+%function nextToken
+%type Token
+
+// ===== Definiciones de patrones =====
+SEMI   = ";"
+PLUS   = "\\+"
+MINUS  = "-"
+MULT   = "\\*"
+DIV    = "/"
+MOD    = "%"
+EXP    = "\\^"
+LPAREN = "\\("
+RPAREN = "\\)"
+WHITE  = [ \t\r\n]+
+
+// Definición de número (double con opcional signo, decimal y exponente)
+DIGIT     = [0-9]
+SIGN      = [+-]
+NUMBER    = {SIGN}?{DIGIT}+(\.{DIGIT}+)?([eE]{SIGN}?{DIGIT}+)?
+
+%%
+
+// ===== Reglas de tokens =====
+<YYINITIAL>{SEMI}   { return new Token(Token.SEMI); }
+<YYINITIAL>{PLUS}   { return new Token(Token.PLUS); }
+<YYINITIAL>{MINUS}  { return new Token(Token.MINUS); }
+<YYINITIAL>{MULT}   { return new Token(Token.MULT); }
+<YYINITIAL>{DIV}    { return new Token(Token.DIV); }
+<YYINITIAL>{MOD}    { return new Token(Token.MOD); }
+<YYINITIAL>{EXP}    { return new Token(Token.EXP); }
+<YYINITIAL>{LPAREN} { return new Token(Token.LPAREN); }
+<YYINITIAL>{RPAREN} { return new Token(Token.RPAREN); }
+
+<YYINITIAL>{NUMBER} { return new Token(Token.NUMBER, yytext()); }
+
+<YYINITIAL>{WHITE}  { /* Ignorar espacios en blanco */ }
+
+<YYINITIAL>.        { return new Token(Token.ERROR); }
